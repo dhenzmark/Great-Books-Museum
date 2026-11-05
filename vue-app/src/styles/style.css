@@ -689,12 +689,22 @@ html.museum-on .tb { display: none; }
 html.museum-on .panel { background: transparent; }
 html.museum-on .panel::before { display: none; }
 html.museum-on .section.deep { background: none; }
-html.museum-on .title-hero,
-html.museum-on .next-section > .wrap {
+html.museum-on .title-hero {
   margin: clamp(12px, 2vw, 32px); border-radius: 22px; border: 1px solid var(--gold-line);
   background: rgba(19, 18, 18, .9); box-shadow: 0 30px 80px rgba(0, 0, 0, .5);
 }
-html.museum-on .next-section > .wrap { width: auto; padding-block: clamp(24px, 3vw, 44px); }
+/* the way on, at the end of a page: no box, a doorway sign standing in the room itself, the title
+   centred between two gold rules over a soft shadow that rises from the floor */
+html.museum-on .next-section { display: grid; place-items: end center; min-height: 72vh; padding: 0 0 clamp(56px, 8vw, 110px); background: linear-gradient(0deg, rgba(10, 8, 6, .88) 0%, rgba(10, 8, 6, .55) 45%, rgba(10, 8, 6, 0) 100%); }
+html.museum-on .next-page { flex-direction: column; gap: 22px; padding: 0; border: 0; text-align: center; }
+html.museum-on .next-page::before { display: none; }
+html.museum-on .next-page > span { display: grid; justify-items: center; gap: 14px; }
+html.museum-on .next-page small { display: flex; align-items: center; gap: 16px; margin: 0; color: var(--gold); letter-spacing: .28em; }
+html.museum-on .next-page small::before, html.museum-on .next-page small::after { content: ""; width: clamp(36px, 6vw, 90px); height: 1px; background: var(--gold-line); }
+html.museum-on .next-page strong { font-size: clamp(2.2rem, 5.4vw, 4.4rem); line-height: 1.05; text-shadow: 0 4px 30px rgba(0, 0, 0, .6); }
+html.museum-on .next-page svg { box-sizing: content-box; width: 26px; height: 14px; padding: 18px; border: 1px solid var(--gold-line); border-radius: 50%; background: rgba(12, 10, 8, .55); transition: transform .25s var(--ease), background-color .25s ease, border-color .25s ease; }
+html.museum-on .next-page:hover svg { transform: translateX(0) scale(1.08); background: rgba(176, 120, 72, .35); border-color: var(--copper); }
+html.museum-on .next-page:hover small { letter-spacing: .32em; }
 /* a section that comes up after its walk */
 .museum-stop { position: relative; isolation: isolate; padding: clamp(20px, 3vw, 44px); border-radius: 22px; }
 .museum-stop::before { content: ""; position: absolute; inset: 0; z-index: -2; border-radius: inherit; border: 1px solid var(--gold-line); background: rgba(19, 18, 18, .93); box-shadow: 0 30px 80px rgba(0, 0, 0, .6); }

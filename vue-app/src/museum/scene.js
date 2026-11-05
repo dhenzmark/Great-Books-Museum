@@ -29,7 +29,7 @@ const DOOR_W = 3.2;
 const DOOR_H = 4.3;
 const VIEW = 5.6; // how far from a painting you stand to look at it
 const HANG = 2.3; // height of a painting's centre
-const LABEL_W = 0.82, LABEL_H = 0.5; // the wall label, in metres
+const LABEL_W = 1.0, LABEL_H = 0.61; // the wall label, in metres
 const GAZE = 1.95; // eye height when facing a painting: you look at it level, so it is not foreshortened
 const HAZE = 0xf1ede6;
 
@@ -71,7 +71,8 @@ export function createMuseum(host, works, onFrame, onSlow) {
   const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance" });
   /* the museum sits behind the reading, softened by a veil and a vignette: it does not need every
      screen pixel. It starts a little under the screen's sharpness and drops lower if frames run slow */
-  let ratio = Math.min(window.devicePixelRatio || 1, phone ? 0.8 : 1); // under the screen's own resolution: the grain and vignette hide it, the GPU does far less
+  const sharpest = Math.min(window.devicePixelRatio || 1, phone ? 0.8 : 1);
+  let ratio = sharpest; // under the screen's own resolution: the grain and vignette hide it, the GPU does far less
   renderer.setPixelRatio(ratio);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -430,13 +431,14 @@ export function createMuseum(host, works, onFrame, onSlow) {
     const w = works[k];
     const label = new THREE.Group();
     const card = new THREE.Mesh(new THREE.PlaneGeometry(LABEL_W, LABEL_H), new THREE.MeshStandardMaterial({ color: 0xf3efe7, roughness: 0.92 }));
-    later(() => {
-      const tex = keep(labelTexture(w, k)); // drawn only once its room is near
+    later(() => document.fonts.load("600 124px 'Bodoni Moda'").then(() => document.fonts.load("600 56px Montserrat")).catch(() => {}).then(() => {
+      const tex = keep(labelTexture(w, k)); // drawn only once its room is near, in the site's own fonts
       tex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy()); // crisp, though seen at an angle
       card.material.map = tex;
       card.material.color.set(0xffffff);
       card.material.needsUpdate = true;
-    });
+      wake();
+    }));
     card.position.z = 0.014; // just in front of the board, so the two never fight over the same depth
     const board = new THREE.Mesh(new THREE.BoxGeometry(LABEL_W, LABEL_H, 0.012), new THREE.MeshStandardMaterial({ color: 0xe9e4da, roughness: 0.9 }));
     board.position.z = 0.006;
@@ -645,6 +647,7 @@ export function createMuseum(host, works, onFrame, onSlow) {
   let lastDraw = 0, slow = 0;
   let walking = false;
   let crawl = 0;
+  let fast = 0;
   /* (one steady resolution: resizing the canvas as each walk starts and ends would stall it) */
   function setWalking() {
     renderer.setPixelRatio(ratio);
@@ -655,7 +658,17 @@ export function createMuseum(host, works, onFrame, onSlow) {
     /* a frame that took far longer than the screen's refresh, many times over: draw fewer pixels */
     if (lastDraw && now - lastDraw < 1000) {
       const took = now - lastDraw;
-      slow = took > 24 ? slow + 1 : Math.max(0, slow - 1);
+      /* judged only while walking (a page loading is not the museum being slow), and a lowered
+         resolution is raised again once the walk runs easily, so the view never stays soft */
+      if (walking) {
+        slow = took > 24 ? slow + 1 : Math.max(0, slow - 1);
+        fast = took < 12 ? fast + 1 : 0;
+        if (fast > 150 && ratio < sharpest) {
+          ratio = Math.min(sharpest, ratio + 0.15);
+          setWalking(walking);
+          fast = 0;
+        }
+      }
       /* still crawling at the lowest resolution while you walk: this browser cannot draw the museum
          (no graphics card for it): hand back to the plain pages */
       if (walking) {
@@ -1104,13 +1117,14 @@ function shadowTexture() {
 function labelTexture(w, k) {
   const plate = w.plate.look || {};
   const caption = plate.caption || w.plate.caption || "";
-  const [first, ...rest] = caption.split(/(?<=\.)\s/);
+  /* (a sentence ends at a full stop, but not after "c." or an initial like "J. M. W.") */
+  const [first, ...rest] = caption.split(/(?<!\b[A-Za-z])\.\s(?=[A-Z])/);
   const comma = first.indexOf(",");
   const artist = comma > 0 ? first.slice(0, comma) : first.replace(/\.$/, "");
   const date = comma > 0 ? first.slice(comma + 1).trim().replace(/\.$/, "") : "";
   const where = rest.join(" ").replace(/\.$/, "");
-  return canvasTexture(1312, 800, (g, cw, ch) => {
-    /* laid out at 1312 x 800, drawn a little smaller: as sharp as it is ever seen, and quicker */
+  return canvasTexture(2048, 1248, (g, cw, ch) => {
+    /* laid out at 1312 x 800, drawn larger: sharp even when seen small across the room */
     g.scale(cw / 1312, ch / 800);
     cw = 1312;
     ch = 800;
@@ -1122,18 +1136,18 @@ function labelTexture(w, k) {
     }
     /* set to be read from the bench: few lines, heavy enough to survive the distance */
     const x = 80, max = cw - 160;
-    g.fillStyle = "#8a6a3a";
-    g.font = "700 44px Montserrat, sans-serif";
+    g.fillStyle = "#6e5126";
+    g.font = "700 54px Montserrat, sans-serif";
     g.fillText(`ROOM ${roman(k + 1)}`.split("").join(" "), x, 130);
     g.fillStyle = "#151311";
     g.font = "600 124px 'Bodoni Moda', serif";
     let y = wrap(g, w.title, x, 290, max, 128, 420);
-    g.fillStyle = "#3b352e";
-    g.font = "600 56px Montserrat, sans-serif";
+    g.fillStyle = "#2c2722";
+    g.font = "600 60px Montserrat, sans-serif";
     y += 104;
     wrap(g, date ? `${artist}, ${date}` : artist, x, y, max, 68, 700);
-    g.fillStyle = "#5a5148";
-    g.font = "600 46px Montserrat, sans-serif";
+    g.fillStyle = "#4a4239";
+    g.font = "600 54px Montserrat, sans-serif";
     g.fillText(w.lens ? `${w.lens} lens` : w.kicker || "", x, ch - 110);
   });
 }
