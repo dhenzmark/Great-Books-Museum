@@ -31,28 +31,28 @@ import CraftNotes from "../components/learning/CraftNotes.vue";
         <div class="wrap">
           <div class="walk">
             <div v-if="museum.on" class="walk-gap" aria-hidden="true"></div>
-            <div class="museum-stop">
+            <div class="museum-stop is-side">
               <LessonGrid />
             </div>
             <div v-if="museum.on" class="walk-spacer" aria-hidden="true"></div>
           </div>
           <div class="walk">
             <div v-if="museum.on" class="walk-gap" aria-hidden="true"></div>
-            <div class="museum-stop">
+            <div class="museum-stop is-side">
               <LensGuide />
             </div>
             <div v-if="museum.on" class="walk-spacer" aria-hidden="true"></div>
           </div>
           <div class="walk">
             <div v-if="museum.on" class="walk-gap" aria-hidden="true"></div>
-            <div class="museum-stop">
+            <div class="museum-stop is-side">
               <ComparisonTable />
             </div>
             <div v-if="museum.on" class="walk-spacer" aria-hidden="true"></div>
           </div>
           <div class="walk">
             <div v-if="museum.on" class="walk-gap" aria-hidden="true"></div>
-            <div class="museum-stop">
+            <div class="museum-stop is-side">
               <CraftNotes />
             </div>
             <div v-if="museum.on" class="walk-spacer" aria-hidden="true"></div>

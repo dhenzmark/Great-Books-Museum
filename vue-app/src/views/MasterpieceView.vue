@@ -33,28 +33,28 @@ import FavoriteScene from "../components/masterpiece/FavoriteScene.vue";
         <div class="wrap">
           <div class="walk">
             <div v-if="museum.on" class="walk-gap" aria-hidden="true"></div>
-            <div class="museum-stop">
+            <div class="museum-stop is-side">
               <AngerArcFeature />
             </div>
             <div v-if="museum.on" class="walk-spacer" aria-hidden="true"></div>
           </div>
           <div class="walk">
             <div v-if="museum.on" class="walk-gap" aria-hidden="true"></div>
-            <div class="museum-stop">
+            <div class="museum-stop is-side">
               <PrincipleList />
             </div>
             <div v-if="museum.on" class="walk-spacer" aria-hidden="true"></div>
           </div>
           <div class="walk">
             <div v-if="museum.on" class="walk-gap" aria-hidden="true"></div>
-            <div class="museum-stop">
+            <div class="museum-stop is-side">
               <AchillesCompare />
             </div>
             <div v-if="museum.on" class="walk-spacer" aria-hidden="true"></div>
           </div>
           <div class="walk">
             <div v-if="museum.on" class="walk-gap" aria-hidden="true"></div>
-            <div class="museum-stop">
+            <div class="museum-stop is-side">
               <FavoriteScene />
             <WorkFoot
               v-reveal

@@ -686,13 +686,17 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
 .museum-fade { position: absolute; inset: 0; z-index: 3; background: #0c0b0a; opacity: 0; transition: opacity .3s ease; }
 /* the site floats over the museum: no backdrop, no panel fill; what is read sits on cards */
 html.museum-on .tb { display: none; }
-html.museum-on .panel { background: transparent; }
+/* the building fills the screen: no gold frame round the site, no margin word, no footer at the
+   end of the walk (the way on is the doorway sign) */
+html.museum-on .panel { background: transparent; border: 0; border-radius: 0; width: 100%; margin: 0; overflow: visible; }
+html.museum-on .side-word, html.museum-on .panel > .footer { display: none; }
 html.museum-on .panel::before { display: none; }
 html.museum-on .section.deep { background: none; }
-html.museum-on .title-hero {
-  margin: clamp(12px, 2vw, 32px); border-radius: 22px; border: 1px solid var(--gold-line);
-  background: rgba(19, 18, 18, .9); box-shadow: 0 30px 80px rgba(0, 0, 0, .5);
-}
+/* every card in the museum is a wall panel: a matte, warm face with square corners, a fine gold
+   rule and a second rule set in from it, as on a picture mount, and the soft shadow of something
+   hung a finger's width off the wall */
+html.museum-on .title-hero { position: relative; isolation: isolate; margin: clamp(12px, 2vw, 32px) 0; }
+html.museum-on .title-hero::after { content: ""; position: absolute; inset: -40px -60px; z-index: -1; pointer-events: none; background: rgba(10, 8, 6, .8); -webkit-mask: linear-gradient(90deg, transparent, #000 90px, #000 calc(100% - 90px), transparent) , linear-gradient(0deg, transparent, #000 90px, #000 calc(100% - 90px), transparent); -webkit-mask-composite: source-in; mask: linear-gradient(90deg, transparent, #000 90px, #000 calc(100% - 90px), transparent), linear-gradient(0deg, transparent, #000 90px, #000 calc(100% - 90px), transparent); mask-composite: intersect; }
 /* the way on, at the end of a page: no box, a doorway sign standing in the room itself, the title
    centred between two gold rules over a soft shadow that rises from the floor */
 html.museum-on .next-section { display: grid; place-items: end center; min-height: 72vh; padding: 0 0 clamp(56px, 8vw, 110px); background: linear-gradient(0deg, rgba(10, 8, 6, .88) 0%, rgba(10, 8, 6, .55) 45%, rgba(10, 8, 6, 0) 100%); }
@@ -706,9 +710,24 @@ html.museum-on .next-page svg { box-sizing: content-box; width: 26px; height: 14
 html.museum-on .next-page:hover svg { transform: translateX(0) scale(1.08); background: rgba(176, 120, 72, .35); border-color: var(--copper); }
 html.museum-on .next-page:hover small { letter-spacing: .32em; }
 /* a section that comes up after its walk */
-.museum-stop { position: relative; isolation: isolate; padding: clamp(20px, 3vw, 44px); border-radius: 22px; }
-.museum-stop::before { content: ""; position: absolute; inset: 0; z-index: -2; border-radius: inherit; border: 1px solid var(--gold-line); background: rgba(19, 18, 18, .93); box-shadow: 0 30px 80px rgba(0, 0, 0, .6); }
+.museum-stop { position: relative; isolation: isolate; padding: clamp(28px, 3.4vw, 52px); border-radius: 3px; }
+.museum-stop::before { content: ""; position: absolute; inset: -70px -90px; z-index: -2; pointer-events: none; background: rgba(10, 8, 6, .8); -webkit-mask: linear-gradient(90deg, transparent, #000 90px, #000 calc(100% - 90px), transparent) , linear-gradient(0deg, transparent, #000 90px, #000 calc(100% - 90px), transparent); -webkit-mask-composite: source-in; mask: linear-gradient(90deg, transparent, #000 90px, #000 calc(100% - 90px), transparent), linear-gradient(0deg, transparent, #000 90px, #000 calc(100% - 90px), transparent); mask-composite: intersect; }
 .museum-stop.is-wide { margin-inline: clamp(12px, 2vw, 32px); }
+/* beside the painting: the section stands to the right of the view as wall text next to the work,
+   the shade rising only from that side, so the painting on the left stays clear and lit */
+@media (min-width: 1000px) {
+  html.museum-on .museum-stop.is-side { width: min(48%, 860px); margin-left: auto; margin-right: clamp(0px, 1.5vw, 24px); padding-inline: 0; }
+  html.museum-on .museum-stop.is-side::before { inset: -80px calc(-1 * clamp(0px, 1.5vw, 24px) - var(--pad) - 60px) -80px -160px; background: linear-gradient(90deg, rgba(10, 8, 6, 0), rgba(10, 8, 6, .55) 90px, rgba(10, 8, 6, .86) 220px); -webkit-mask: linear-gradient(0deg, transparent, #000 90px, #000 calc(100% - 90px), transparent); mask: linear-gradient(0deg, transparent, #000 90px, #000 calc(100% - 90px), transparent); }
+  html.museum-on .is-side .feature, html.museum-on .is-side .compare-pair, html.museum-on .is-side .welcome, html.museum-on .is-side .figures { grid-template-columns: minmax(0, 1fr); }
+  html.museum-on .is-side .figures > * { grid-column: auto !important; grid-row: auto !important; }
+  html.museum-on .is-side .lessons, html.museum-on .is-side .lens-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  html.museum-on .is-side .principle { grid-template-columns: 180px 1fr; }
+  html.museum-on .is-side .ghost-word, html.museum-on .is-side .circle { display: none; }
+  html.museum-on .is-side .section { padding-block: clamp(20px, 3vw, 40px); }
+  html.museum-on .is-side .wrap { padding-inline: 0; }
+}
+/* wall text: printed straight onto the room, lifted by a soft shadow behind the letters */
+html.museum-on .museum-stop, html.museum-on .title-hero, html.museum-on .with-museum .work > :not(.work-poster):not(.work-card) { text-shadow: 0 1px 12px rgba(0, 0, 0, .55); }
 /* Home: the hero is the entrance hall seen through the page: the title on the left, the hall's
    painting on the right, a soft shadow behind the words so they read over the room */
 html.museum-on .hero { min-height: calc(100svh - var(--nav-h)); display: flex; align-items: center; padding-block: 0; background: linear-gradient(90deg, rgba(12, 10, 8, .82) 0%, rgba(12, 10, 8, .6) 34%, rgba(12, 10, 8, 0) 62%); }
@@ -742,18 +761,19 @@ html.museum-loading .museum canvas { opacity: 0; }
 .walk-gap { height: 120vh; } /* a screen for the last section to leave, then the walk */
 .walk-gap:has(+ .museum-stop) { height: 100vh; } /* (a plain section needs no long approach) */
 /* each analysis comes up over the view on a dark panel */
-.with-museum .work { margin-top: 0; padding: clamp(20px, 3vw, 44px); border-radius: 22px; isolation: isolate; }
+.with-museum .work { margin-top: 0; padding: clamp(22px, 3vw, 44px); border-radius: 3px; isolation: isolate; }
+.with-museum .work-poster { border-radius: 2px; } /* the print itself, unframed */
 /* the card is a real element (not a pseudo-element driven by a variable), so fading it touches
    nothing else: changing an inherited variable on an analysis would restyle everything inside it */
 .work-card { display: none; }
-.with-museum .work-card { display: block; position: absolute; inset: 0; z-index: -2; border-radius: inherit; border: 1px solid var(--gold-line); background: rgba(19, 18, 18, .93); box-shadow: 0 30px 80px rgba(0, 0, 0, .6); }
+.with-museum .work-card { display: block; position: absolute; inset: -70px -90px; z-index: -2; pointer-events: none; background: rgba(10, 8, 6, .8); -webkit-mask: linear-gradient(90deg, transparent, #000 90px, #000 calc(100% - 90px), transparent) , linear-gradient(0deg, transparent, #000 90px, #000 calc(100% - 90px), transparent); -webkit-mask-composite: source-in; mask: linear-gradient(90deg, transparent, #000 90px, #000 calc(100% - 90px), transparent), linear-gradient(0deg, transparent, #000 90px, #000 calc(100% - 90px), transparent); mask-composite: intersect; }
 .museum-veil, .museum-fade { will-change: opacity; }
 .with-museum .work + .walk-gap { margin-top: 0; }
 /* the list of works stays readable over the bright gallery */
-@media (min-width: 761px) { #analyses.with-museum .toc { align-self: start; margin-top: clamp(40px, 6vw, 90px); padding: 26px 24px 22px; border-radius: 16px; background: rgba(19, 18, 18, .9); border: 1px solid var(--gold-line); } }
+@media (min-width: 761px) { #analyses.with-museum .toc { align-self: start; margin-top: clamp(40px, 6vw, 90px); padding: 30px 28px 26px; background: radial-gradient(ellipse 75% 70% at 50% 50%, rgba(10, 8, 6, .85) 40%, rgba(10, 8, 6, 0) 100%); padding: 40px 34px 36px; } }
 /* the page's first-analysis rule takes away the top padding; inside the museum every card keeps it */
 #analyses.with-museum .work.work { padding-top: clamp(20px, 3vw, 44px); }
-@media (max-width: 760px) { .walk-gap { height: 110vh; } .walk-gap:has(+ .museum-stop) { height: 90vh; } .with-museum .work, #analyses.with-museum .work.work, .museum-stop { padding: 16px; border-radius: 16px; } }
+@media (max-width: 760px) { .walk-gap { height: 110vh; } .walk-gap:has(+ .museum-stop) { height: 90vh; } .with-museum .work, #analyses.with-museum .work.work, .museum-stop { padding: 18px; border-radius: 3px; } }
 
 @supports (animation-timeline: view()) {
   /* the gallery: the left painting hangs on the left wall, the right one on the right wall,

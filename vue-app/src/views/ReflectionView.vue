@@ -26,7 +26,7 @@ import ReflectionLetter from "../components/reflection/ReflectionLetter.vue";
         <div class="wrap">
           <div class="walk">
             <div v-if="museum.on" class="walk-gap" aria-hidden="true"></div>
-            <div class="museum-stop">
+            <div class="museum-stop is-side">
               <ReflectionLetter />
             </div>
             <div v-if="museum.on" class="walk-spacer" aria-hidden="true"></div>

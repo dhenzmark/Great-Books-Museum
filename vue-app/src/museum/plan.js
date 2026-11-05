@@ -47,6 +47,10 @@ export const WINGS = {
   ],
 };
 
+/* in these wings a section stands beside its painting (the painting on the left, the words on the
+   right) rather than over it */
+for (const name of ["masterpiece", "learning", "reflection", "profile"]) WINGS[name].forEach((r) => (r.side = true));
+
 /* every room in walking order, and where each page's wing begins */
 export const ORDER = ["home", "analyses", "masterpiece", "learning", "reflection", "profile"];
 export const ROOMS = ORDER.flatMap((name) => WINGS[name]);

@@ -17,14 +17,14 @@ import ProfileFigures from "../components/profile/ProfileFigures.vue";
     <main id="main">
       <div class="walk">
         <div v-if="museum.on" class="walk-gap" aria-hidden="true"></div>
-        <div class="museum-stop is-wide">
+        <div class="museum-stop is-side">
           <ProfileWelcome />
         </div>
         <div v-if="museum.on" class="walk-spacer" aria-hidden="true"></div>
       </div>
       <div class="walk">
         <div v-if="museum.on" class="walk-gap" aria-hidden="true"></div>
-        <div class="museum-stop is-wide">
+        <div class="museum-stop is-side">
           <ProfileFigures />
         </div>
         <div v-if="museum.on" class="walk-spacer" aria-hidden="true"></div>

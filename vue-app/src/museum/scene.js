@@ -598,6 +598,14 @@ export function createMuseum(host, works, onFrame, onSlow) {
   const wallPoint = (r, d, inset) => { const [dx, dz] = DIR[d]; return V(r.x + dx * (S / 2 - inset), EYE, r.z + dz * (S / 2 - inset)); };
   const artPoint = (k) => { const p = wallPoint(rooms[k], rooms[k].main, 0); p.y = HANG; return p; };
   const viewPoint = (k) => wallPoint(rooms[k], rooms[k].main, VIEW);
+  /* where you look when you stand at room k: its painting, or (where its section stands beside it,
+     on a wide screen) a little to the right of it, so the painting hangs on the left of the view */
+  const facePoint = (k, y = GAZE) => {
+    const p = artPoint(k).setY(y);
+    if (!works[k].side || window.innerWidth < 1000) return p;
+    const f = inward(rooms[k].main).negate();
+    return p.addScaledVector(V(-f.z, 0, f.x), 2.4);
+  };
   /* where you stand at the top of the site: a step back from the first room's painting, looking a
      little to the left of it, so it hangs on the right of the view beside the page's title */
   const facing0 = inward(rooms[0].main).negate();
@@ -629,10 +637,10 @@ export function createMuseum(host, works, onFrame, onSlow) {
     const walkLook = heading.lengthSq() > 1e-6 ? ahead.clone().addScaledVector(heading.normalize(), 3) : artPoint(k);
     const arrive = smooth(clamp01((t - 0.62) / 0.38));
     pos.y += (GAZE - EYE) * Math.max(arrive, k === 0 ? 0 : 1 - smooth(clamp01(t / 0.3))); // stand tall to face a painting, ease down to walk on
-    const from = k === 0 ? startLook : artPoint(k - 1).setY(GAZE);
+    const from = k === 0 ? startLook : facePoint(k - 1);
     const look = walkLook.clone();
     look.lerp(from, 1 - smooth(clamp01(t / 0.3))); // still looking at the last painting as you set off
-    look.lerp(artPoint(k).setY(pos.y), arrive); // and turning to the new one, level, as you arrive
+    look.lerp(facePoint(k, pos.y), arrive); // and turning to the new one, level, as you arrive
     pos.y += Math.sin(s * path.getLength() * 2.2) * 0.025 * Math.sin(s * Math.PI); // a gentle step
     return { pos, look };
   }
@@ -724,7 +732,10 @@ export function createMuseum(host, works, onFrame, onSlow) {
     for (const r of rooms) {
       const near = Math.hypot(r.x - at.x, r.z - at.z) < S * 1.75;
       if (r.parts && r.parts[0].visible !== near) r.parts.forEach((p) => (p.visible = near));
-      if (near && r.pending.length) queue.push(...r.pending.splice(0)); // its paintings, as you come near
+      if (near && r.pending.length) {
+        queue.push(...r.pending.splice(0)); // its paintings, as you come near
+        if (!idle) idle = later2(work); // (set going now: you may stop here and not move again)
+      }
     }
   }
   function wake() {
@@ -739,7 +750,7 @@ export function createMuseum(host, works, onFrame, onSlow) {
     lightRooms(room === 0 ? [0, 1] : [room, room - 1]);
     if (k < 0) target = { pos: start.clone(), look: startLook.clone() };
     else if (t < 1) target = poseOn(k, clamp01(t));
-    else target = { pos: viewPoint(k).setY(GAZE), look: artPoint(k).setY(GAZE) };
+    else target = { pos: viewPoint(k).setY(GAZE), look: facePoint(k) };
     /* standing still (facing a painting while its analysis comes up): nothing to redraw */
     if (was.pos.distanceTo(target.pos) + was.look.distanceTo(target.look) > 1e-5) wake();
   }

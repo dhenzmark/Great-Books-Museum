@@ -173,7 +173,9 @@ function update(now = performance.now()) {
       const out = clamp01((bottom - navH) / (vh * LEAVE)); // and away as it leaves, so the next walk can start
       const v = Math.min(clamp01(zi / 0.4), out); // it fades up as it rises into view
       put(el, "opacity", v.toFixed(2));
-      if (top < vh && bottom > navH) dim = Math.max(dim, v);
+      /* (beside its painting, the room hardly dims: the painting is meant to be seen with the words) */
+      const side = window.innerWidth >= 1000 && el.classList.contains("is-side");
+      if (top < vh && bottom > navH) dim = Math.max(dim, v * (side ? 0.3 : 1));
       return;
     }
     /* an analysis: the picture lands, the poster takes it over, its shading comes down over the
