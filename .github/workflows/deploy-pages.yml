@@ -32,8 +32,8 @@ jobs:
       - run: npm ci
       - run: npm run build
         env:
-          # the site lives at https://dhenzmark.github.io/Great-Books-Website/
-          BASE_PATH: /Great-Books-Website/
+          # the site lives at https://dhenzmark.github.io/Great-Books-Museum/
+          BASE_PATH: /Great-Books-Museum/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: vue-app/dist

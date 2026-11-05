@@ -1,16 +1,19 @@
 <script setup>
 import works from "../data/works.js";
-import { watch } from "vue";
+import { watch, ref } from "vue";
 import { useScrollSpy } from "../composables/useScrollSpy.js";
 import { backdrop, traditionOf } from "../composables/backdrop.js";
 import PageTitle from "../components/layout/PageTitle.vue";
 import NextPage from "../components/layout/NextPage.vue";
 import WorkToc from "../components/analyses/WorkToc.vue";
 import WorkArticle from "../components/analyses/WorkArticle.vue";
+import MuseumWalk from "../components/analyses/MuseumWalk.vue";
 
 const active = useScrollSpy(works.map((w) => w.id));
 /* the background shows the tradition of the work you are reading */
 watch(active, (id) => (backdrop.tradition = traditionOf[id] || "all"), { immediate: true });
+/* the museum walk (MuseumWalk.vue); without WebGL the page reads as before */
+const museum = ref(true);
 </script>
 
 <template>
@@ -33,12 +36,17 @@ watch(active, (id) => (backdrop.tradition = traditionOf[id] || "all"), { immedia
     </PageTitle>
 
     <main id="main">
-      <section id="analyses" class="section" aria-labelledby="page-title">
+      <section id="analyses" class="section" :class="{ 'with-museum': museum }" aria-labelledby="page-title">
+        <MuseumWalk v-if="museum" @unavailable="museum = false" />
         <div class="wrap">
           <div class="with-toc">
             <WorkToc :works="works" :active="active" />
             <div class="toc-body">
-              <WorkArticle v-for="work in works" :key="work.id" :work="work" :current="work.id === active" />
+              <template v-for="work in works" :key="work.id">
+                <!-- the walk to this work's painting; then its analysis comes up over the view -->
+                <div v-if="museum" class="walk-gap" aria-hidden="true"></div>
+                <WorkArticle :work="work" :current="work.id === active" />
+              </template>
             </div>
           </div>
         </div>

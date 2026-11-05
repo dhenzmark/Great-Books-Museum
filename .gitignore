@@ -8,3 +8,9 @@ dist/
 .DS_Store
 Thumbs.db
 .vercel
+
+# Original 3D downloads: only the small web version in vue-app/public/assets/3d is used
+*.zip
+*.gltf
+*.fbx
+*.usdz

@@ -645,7 +645,10 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
 .artifact { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 72px); align-items: center; }
 .artifact-stage { position: relative; aspect-ratio: 1; overflow: hidden; border: 1px solid var(--gold-line); background: radial-gradient(closest-side, #1d1e24, #121318); }
 /* the viewer is drawn larger than its frame, so the frame crops off Sketchfab's own buttons and badges */
-.artifact-stage iframe { position: absolute; top: -64px; left: -64px; width: calc(100% + 128px); height: calc(100% + 128px); border: 0; }
+.artifact-stage iframe { position: absolute; top: -64px; left: -64px; width: calc(100% + 128px); height: calc(100% + 128px); border: 0; pointer-events: none; }
+.artifact-stage.grabbed iframe { pointer-events: auto; } /* until clicked, the wheel scrolls the page, not the model */
+.artifact-grab { position: absolute; inset: 0; cursor: pointer; opacity: 0; transition: opacity .25s ease; }
+.artifact-stage:hover .artifact-grab { opacity: 1; }
 .artifact-poster { position: absolute; inset: 0; padding: 0; border: 0; background: none; cursor: pointer; }
 .artifact-poster img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease); }
 .artifact-poster:hover img, .artifact-poster:focus-visible img { transform: scale(1.05); }
@@ -676,3 +679,39 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
 .artifact-poster { z-index: 1; pointer-events: none; transition: opacity .8s ease; }
 .artifact-poster.is-gone { opacity: 0; }
 .artifact-poster .artifact-play { pointer-events: none; }
+
+/* ---------- museum walk (MuseumWalk.vue + museumScene.js): a 3D gallery behind the analyses ---------- */
+.museum { position: sticky; top: 0; z-index: 0; height: 100vh; height: 100svh; margin-bottom: -100vh; margin-bottom: -100svh; pointer-events: none; }
+.museum canvas { display: block; width: 100%; height: 100%; }
+.museum-veil { position: absolute; inset: 0; z-index: 1; background: #0e0d0d; opacity: 0; }
+/* the painting, lifted off the wall, on its way to the poster */
+.museum-flyer { position: absolute; inset: 0; z-index: 2; overflow: hidden; visibility: hidden; opacity: 0; }
+.museum-flyer img { position: absolute; left: 0; top: 0; width: auto; height: auto; max-width: none; transform-origin: 0 0; will-change: transform; }
+/* the poster must already sit still when the picture lands on it: no reveal, no zoom settling */
+#analyses.with-museum .work-poster.reveal { opacity: 1; transform: none; transition: none; }
+#analyses.with-museum .work-poster img[data-parallax] { scale: 1.12; transition: none !important; }
+/* a soft vignette, as through a lens */
+.museum::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(ellipse 75% 70% at 50% 50%, transparent 55%, rgba(12, 10, 8, .38)); }
+#analyses > .wrap { position: relative; z-index: 1; }
+/* the empty stretch where you walk to the next painting */
+.walk-gap { height: 160vh; }
+/* each analysis comes up over the view on a dark panel */
+.with-museum .work { --card: 1; margin-top: 0; padding: clamp(20px, 3vw, 44px); border-radius: 22px; isolation: isolate; }
+.with-museum .work::before { content: ""; position: absolute; inset: 0; z-index: -2; border-radius: inherit; border: 1px solid var(--gold-line); background: rgba(19, 18, 18, .93); box-shadow: 0 30px 80px rgba(0, 0, 0, .6); opacity: var(--card); }
+.with-museum .work-poster::after { opacity: var(--shade, 1); } /* the poster's shading comes down over the landed picture first */
+.with-museum .work + .walk-gap { margin-top: 0; }
+/* the list of works stays readable over the bright gallery */
+@media (min-width: 761px) { #analyses.with-museum .toc { align-self: start; margin-top: clamp(40px, 6vw, 90px); padding: 26px 24px 22px; border-radius: 16px; background: rgba(19, 18, 18, .9); border: 1px solid var(--gold-line); } }
+@media (max-width: 760px) { .walk-gap { height: 140vh; } .with-museum .work { padding: 16px; border-radius: 16px; } }
+
+@supports (animation-timeline: view()) {
+  /* the gallery: the left painting hangs on the left wall, the right one on the right wall,
+     and each turns to face you as you reach it */
+  .work .trio .plate { --wall: 0; animation: wall-turn linear both; animation-timeline: view(); animation-range: entry 0% cover 38%; }
+  .work .trio .plate:nth-child(1) { --wall: 1; }
+  .work .trio .plate:nth-child(3) { --wall: -1; }
+}
+@keyframes wall-turn {
+  from { opacity: .25; transform: perspective(1200px) rotateY(calc(var(--wall) * 34deg)) translateZ(-140px); }
+  to { opacity: 1; transform: none; }
+}

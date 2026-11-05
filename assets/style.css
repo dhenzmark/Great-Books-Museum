@@ -179,7 +179,7 @@ blockquote { margin: 0; }
 .stack { position: relative; min-height: 520px; }
 .stack .s1 { position: absolute; top: 0; left: 8%; width: 66%; aspect-ratio: 4 / 5; background: var(--raised); display: grid; place-items: center; overflow: hidden; }
 .stack .s1 span { font-family: var(--serif); font-size: 5rem; color: var(--gold); }
-.stack .s1 img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.stack .s1 img { width: 100%; height: 100%; object-fit: cover; }
 .stack .s2 { position: absolute; right: 0; bottom: 0; width: 54%; aspect-ratio: 1; overflow: hidden; box-shadow: -20px -20px 0 var(--panel); }
 .stack .s2 img { width: 100%; height: 100%; object-fit: cover; }
 @media (max-width: 860px) { .welcome { grid-template-columns: 1fr; } .stack { min-height: 420px; } .facts { grid-template-columns: 1fr; } }
@@ -504,6 +504,7 @@ dialog.lightbox .dialog-body::-webkit-scrollbar { display: none; }
 #analyses { padding-top: clamp(40px, 5vw, 72px); }
 #analyses .toc { padding-top: 0; }
 #analyses .with-toc .work:first-of-type { padding-top: 0; }
+.stack .s1 { place-items: start center; padding-top: 18%; }
 
 /* ---------- readable timeline dates ---------- */
 .era-detail .era-date { font-size: clamp(2rem, 3.8vw, 3.2rem); color: var(--text); letter-spacing: 0; line-height: 1.05; }

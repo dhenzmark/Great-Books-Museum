@@ -2,10 +2,11 @@
 /*
   A 3D artifact shown in Sketchfab's own viewer, beside a museum-style label.
   The models aren't downloadable, so embedding is the permitted way to show them.
-  The viewer loads by itself as soon as its work comes into view, even while another tab
-  (such as Summary) is open, so it is ready by the time the reader reaches it, and unloads
-  again once the work is a screen behind.
-  A still picture stands in until it has loaded.
+  The viewer loads by itself once it is actually on screen (booting a 3D viewer is heavy, so
+  never while it is hidden in a closed tab or still scrolling in), and unloads again once its
+  work is a screen behind. A still picture stands in until it has loaded.
+  The page scrolls straight through the viewer until the reader clicks it, so the wheel never
+  gets caught zooming the model on the way past.
   Put the label's paragraph(s) in the default slot.
 */
 import { ref, onMounted, onBeforeUnmount } from "vue";
@@ -36,16 +37,16 @@ const embedUrl =
 const live = ref(false); // viewer requested
 const shown = ref(false); // viewer finished loading: the still picture fades away
 const stage = ref(null);
+const grabbed = ref(false); // clicked: the viewer now takes the mouse and wheel
 let near = null;
 let far = null;
 let fadeTimer = 0;
 
 onMounted(() => {
   if (!("IntersectionObserver" in window)) return (live.value = true);
-  /* watch the whole analysis, not the (possibly hidden) tab the viewer sits in */
   const target = stage.value.closest("article") || stage.value;
-  /* load as the analysis comes near... */
-  near = new IntersectionObserver(([e]) => e.isIntersecting && (live.value = true), { rootMargin: "200px 0px" });
+  /* load once the viewer itself is on screen (a hidden tab has no size, so it never counts)... */
+  near = new IntersectionObserver(([e]) => e.isIntersecting && e.intersectionRatio > 0 && (live.value = true), { threshold: 0.25 });
   /* ...and unload once it is more than a screen away, so works already passed don't keep a
      3D scene running (on phones several at once make scrolling lag); the still picture returns */
   far = new IntersectionObserver(
@@ -54,10 +55,11 @@ onMounted(() => {
       clearTimeout(fadeTimer);
       live.value = false;
       shown.value = false;
+      grabbed.value = false;
     },
     { rootMargin: "100% 0px" }
   );
-  near.observe(target);
+  near.observe(stage.value);
   far.observe(target);
 });
 /* give the viewer a moment to draw the model before the still picture fades */
@@ -75,7 +77,7 @@ onBeforeUnmount(() => {
 <template>
   <component :is="compact ? 'div' : 'section'" :class="compact ? 'artifact-inline' : 'section artifact-section'" :aria-labelledby="titleId">
     <div class="artifact" :class="{ wrap: !compact }">
-      <div ref="stage" v-reveal class="artifact-stage">
+      <div ref="stage" v-reveal class="artifact-stage" :class="{ grabbed }" @pointerdown="grabbed = true" @mouseleave="grabbed = false">
         <iframe
           v-if="live"
           :src="embedUrl"
@@ -88,6 +90,9 @@ onBeforeUnmount(() => {
           <img :src="poster" :alt="posterAlt" loading="lazy" decoding="async" :style="{ scale: zoom }" />
           <span v-if="live && !shown" class="artifact-play">Loading 3D…</span>
         </div>
+        <div v-if="shown && !grabbed" class="artifact-grab" aria-hidden="true">
+          <span class="artifact-play">Click to turn it</span>
+        </div>
       </div>
 
       <div v-reveal class="artifact-label">
@@ -95,7 +100,7 @@ onBeforeUnmount(() => {
         <component :is="compact ? 'h4' : 'h2'" :id="titleId" class="copper-title">{{ title }}</component>
         <p class="artifact-meta">{{ meta }}</p>
         <slot />
-        <p class="artifact-hint">Drag to turn it, scroll to zoom.</p>
+        <p class="artifact-hint">Click the model, then drag to turn it and scroll to zoom.</p>
         <p class="artifact-credit">
           3D model: <a :href="pageUrl" target="_blank" rel="noopener">&ldquo;{{ modelName }}&rdquo; by {{ modelAuthor }}</a> on Sketchfab<template v-if="licenseName">, licensed under <a :href="licenseUrl" target="_blank" rel="noopener">{{ licenseName }}</a></template>
         </p>
