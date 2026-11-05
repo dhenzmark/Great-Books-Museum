@@ -111,7 +111,7 @@ function update() {
   }
 
   /* ---- then write ---- */
-  let dim = 0;
+  let dim = 0, zk = 0;
   flight = null;
   articles.forEach((el, i) => {
     /* zi: how far the analysis has come up, from the bottom of the screen (0) to just below the nav (1) */
@@ -125,6 +125,7 @@ function update() {
     const stop = Math.max(rest, navH + (vh - navH - ph) / 2) - (el._lift || 0);
     const raw = (vh - top) / (vh - stop);
     const zi = clamp01(raw);
+    if (i === k) zk = zi;
     /* the picture lands, the poster takes it over, its shading comes down over the picture,
        then the card and the rest of the analysis, then the words */
     const pic = clamp01((zi - 0.78) / 0.03);
@@ -167,8 +168,9 @@ function update() {
       dim = Math.max(dim, flight.e);
     }
   });
-  /* once the picture has lifted off, its frame on the wall is empty */
-  const lift = flight && flight.fade >= 1 ? flight.k : -1;
+  /* once the picture has lifted off, its frame on the wall stays empty while you face it (the
+     picture is on the page now); it is hung back as you walk on to the next room */
+  const lift = k >= 0 && t >= 1 && zk >= 0.05 ? k : -1;
   if (lift !== lifted) museum.lift((lifted = lift));
   museum.setWalk(k, t);
   placeFlyer();
