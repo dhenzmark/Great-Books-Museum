@@ -1,19 +1,17 @@
 <script setup>
 import works from "../data/works.js";
-import { watch, ref } from "vue";
+import { watch } from "vue";
 import { useScrollSpy } from "../composables/useScrollSpy.js";
 import { backdrop, traditionOf } from "../composables/backdrop.js";
 import PageTitle from "../components/layout/PageTitle.vue";
 import NextPage from "../components/layout/NextPage.vue";
 import WorkToc from "../components/analyses/WorkToc.vue";
 import WorkArticle from "../components/analyses/WorkArticle.vue";
-import MuseumWalk from "../components/analyses/MuseumWalk.vue";
+import { museum } from "../museum/state.js";
 
 const active = useScrollSpy(works.map((w) => w.id));
 /* the background shows the tradition of the work you are reading */
 watch(active, (id) => (backdrop.tradition = traditionOf[id] || "all"), { immediate: true });
-/* the museum walk (MuseumWalk.vue); without WebGL the page reads as before */
-const museum = ref(true);
 </script>
 
 <template>
@@ -36,16 +34,18 @@ const museum = ref(true);
     </PageTitle>
 
     <main id="main">
-      <section id="analyses" class="section" :class="{ 'with-museum': museum }" aria-labelledby="page-title">
-        <MuseumWalk v-if="museum" @unavailable="museum = false" />
+      <section id="analyses" class="section" :class="{ 'with-museum': museum.on }" aria-labelledby="page-title">
         <div class="wrap">
           <div class="with-toc">
             <WorkToc :works="works" :active="active" />
             <div class="toc-body">
               <template v-for="work in works" :key="work.id">
                 <!-- the walk to this work's painting; then its analysis comes up over the view -->
-                <div v-if="museum" class="walk-gap" aria-hidden="true"></div>
-                <WorkArticle :work="work" :current="work.id === active" />
+                <div class="walk">
+                  <div v-if="museum.on" class="walk-gap" aria-hidden="true"></div>
+                  <WorkArticle :work="work" :current="work.id === active" />
+                  <div v-if="museum.on" class="walk-spacer" aria-hidden="true"></div>
+                </div>
               </template>
             </div>
           </div>

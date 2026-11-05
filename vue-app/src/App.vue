@@ -9,6 +9,7 @@ import SiteFooter from "./components/layout/SiteFooter.vue";
 import PaintingViewer from "./components/layout/PaintingViewer.vue";
 import TraditionBackdrop from "./components/layout/TraditionBackdrop.vue";
 import BackToTop from "./components/layout/BackToTop.vue";
+import SiteMuseum from "./components/layout/SiteMuseum.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -91,6 +92,7 @@ onMounted(() => router.isReady().then(() => nextTick(applyPendingScroll)));
 
 <template>
   <TraditionBackdrop />
+  <SiteMuseum />
   <a class="skip-link" href="#main">Skip to content</a>
   <div class="side-word" aria-hidden="true">Epic Voices</div>
   <div class="panel" @click="followInternalLink">

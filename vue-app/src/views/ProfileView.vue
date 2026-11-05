@@ -1,4 +1,5 @@
 <script setup>
+import { museum } from "../museum/state.js";
 import PageTitle from "../components/layout/PageTitle.vue";
 import NextPage from "../components/layout/NextPage.vue";
 import ProfileWelcome from "../components/profile/ProfileWelcome.vue";
@@ -14,8 +15,20 @@ import ProfileFigures from "../components/profile/ProfileFigures.vue";
     </PageTitle>
 
     <main id="main">
-      <ProfileWelcome />
-      <ProfileFigures />
+      <div class="walk">
+        <div v-if="museum.on" class="walk-gap" aria-hidden="true"></div>
+        <div class="museum-stop is-wide">
+          <ProfileWelcome />
+        </div>
+        <div v-if="museum.on" class="walk-spacer" aria-hidden="true"></div>
+      </div>
+      <div class="walk">
+        <div v-if="museum.on" class="walk-gap" aria-hidden="true"></div>
+        <div class="museum-stop is-wide">
+          <ProfileFigures />
+        </div>
+        <div v-if="museum.on" class="walk-spacer" aria-hidden="true"></div>
+      </div>
       <NextPage to="/" eyebrow="Back to the beginning" title="Epic Voices home" />
     </main>
   </div>

@@ -26,6 +26,7 @@ const elementsTab = props.work.tabs.findIndex((t) => t.label === "Literary Eleme
 
 <template>
   <article :id="work.id" class="work" :class="{ 'is-right': work.right, 'in-view': current }" :aria-labelledby="work.titleId">
+    <i class="work-card" aria-hidden="true"></i>
     <WorkBackdrop :id="work.id" />
     <WorkPoster v-reveal :work="work" />
     <WorkSummary v-reveal :work="work" />

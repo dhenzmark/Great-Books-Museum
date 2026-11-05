@@ -29,6 +29,7 @@ const roman = ["I", "II", "III", "IV", "V", "VI", "VII"];
 <template>
   <header class="work-poster">
     <img v-parallax="0.06" class="work-poster-img" :src="work.plate.src" :alt="work.plate.alt" loading="lazy" decoding="async" :style="{ objectPosition: focus[work.id] || '50% 50%', scale: zoom[work.id] }" />
+    <i class="work-poster-shade" aria-hidden="true"></i>
 
     <div class="work-poster-top">
       <p><span class="work-poster-num">{{ roman[Number(work.num) - 1] }}</span> · {{ region }}</p>

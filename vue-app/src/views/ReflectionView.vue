@@ -1,4 +1,5 @@
 <script setup>
+import { museum } from "../museum/state.js";
 import PageTitle from "../components/layout/PageTitle.vue";
 import NextPage from "../components/layout/NextPage.vue";
 import ReflectionLetter from "../components/reflection/ReflectionLetter.vue";
@@ -23,7 +24,13 @@ import ReflectionLetter from "../components/reflection/ReflectionLetter.vue";
     <main id="main">
       <section id="reflection" class="section reflection" aria-labelledby="page-title">
         <div class="wrap">
-          <ReflectionLetter />
+          <div class="walk">
+            <div v-if="museum.on" class="walk-gap" aria-hidden="true"></div>
+            <div class="museum-stop">
+              <ReflectionLetter />
+            </div>
+            <div v-if="museum.on" class="walk-spacer" aria-hidden="true"></div>
+          </div>
         </div>
       </section>
       <NextPage to="/profile" title="Student Profile" />

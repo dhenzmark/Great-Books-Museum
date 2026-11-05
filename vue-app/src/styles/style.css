@@ -501,7 +501,7 @@ dialog.lightbox .dialog-body::-webkit-scrollbar { display: none; }
 /* ---------- analysis openers: gallery-exhibition posters (WorkPoster.vue) ---------- */
 .work-poster { position: relative; isolation: isolate; display: grid; grid-template-rows: auto 1fr auto; gap: 24px; min-height: min(84vh, 760px); padding: clamp(22px, 3.4vw, 48px); border-radius: 18px; overflow: hidden; color: var(--text); background: var(--black); }
 .work-poster-img { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; }
-.work-poster::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(14, 14, 14, .5), rgba(14, 14, 14, 0) 65%), linear-gradient(180deg, rgba(14, 14, 14, .62) 0%, rgba(14, 14, 14, .18) 32%, rgba(14, 14, 14, .3) 55%, rgba(14, 14, 14, .86) 100%); }
+.work-poster-shade { position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(14, 14, 14, .5), rgba(14, 14, 14, 0) 65%), linear-gradient(180deg, rgba(14, 14, 14, .62) 0%, rgba(14, 14, 14, .18) 32%, rgba(14, 14, 14, .3) 55%, rgba(14, 14, 14, .86) 100%); }
 .work-poster p { margin: 0; }
 .work-poster-top, .work-poster-bottom { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; }
 .work-poster-top { align-items: flex-start; font-size: .8rem; text-transform: uppercase; letter-spacing: .16em; }
@@ -680,29 +680,70 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
 .artifact-poster.is-gone { opacity: 0; }
 .artifact-poster .artifact-play { pointer-events: none; }
 
-/* ---------- museum walk (MuseumWalk.vue + museumScene.js): a 3D gallery behind the analyses ---------- */
-.museum { position: sticky; top: 0; z-index: 0; height: 100vh; height: 100svh; margin-bottom: -100vh; margin-bottom: -100svh; pointer-events: none; }
-.museum canvas { display: block; width: 100%; height: 100%; }
+/* ---------- the museum (SiteMuseum.vue + museum/scene.js): a 3D gallery behind the whole site ---------- */
+.museum { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+/* a quick fade across, for a jump to a far wing */
+.museum-fade { position: absolute; inset: 0; z-index: 3; background: #0c0b0a; opacity: 0; transition: opacity .3s ease; }
+/* the site floats over the museum: no backdrop, no panel fill; what is read sits on cards */
+html.museum-on .tb { display: none; }
+html.museum-on .panel { background: transparent; }
+html.museum-on .panel::before { display: none; }
+html.museum-on .section.deep { background: none; }
+html.museum-on .title-hero,
+html.museum-on .next-section > .wrap {
+  margin: clamp(12px, 2vw, 32px); border-radius: 22px; border: 1px solid var(--gold-line);
+  background: rgba(19, 18, 18, .9); box-shadow: 0 30px 80px rgba(0, 0, 0, .5);
+}
+html.museum-on .next-section > .wrap { width: auto; padding-block: clamp(24px, 3vw, 44px); }
+/* a section that comes up after its walk */
+.museum-stop { position: relative; isolation: isolate; padding: clamp(20px, 3vw, 44px); border-radius: 22px; }
+.museum-stop::before { content: ""; position: absolute; inset: 0; z-index: -2; border-radius: inherit; border: 1px solid var(--gold-line); background: rgba(19, 18, 18, .93); box-shadow: 0 30px 80px rgba(0, 0, 0, .6); }
+.museum-stop.is-wide { margin-inline: clamp(12px, 2vw, 32px); }
+/* Home: the hero is the entrance hall seen through the page: the title on the left, the hall's
+   painting on the right, a soft shadow behind the words so they read over the room */
+html.museum-on .hero { min-height: calc(100svh - var(--nav-h)); display: flex; align-items: center; padding-block: 0; background: linear-gradient(90deg, rgba(12, 10, 8, .82) 0%, rgba(12, 10, 8, .6) 34%, rgba(12, 10, 8, 0) 62%); }
+html.museum-on .hero-copy p { color: #d9d2c6; }
+@media (max-width: 760px) { html.museum-on .hero { align-items: flex-end; padding-bottom: 48px; background: linear-gradient(0deg, rgba(12, 10, 8, .9) 0%, rgba(12, 10, 8, .55) 55%, rgba(12, 10, 8, .1) 100%); } }
+/* Home: its sections stand straight in the museum, with no card round them */
+.museum-stop.is-bare { padding: 0; }
+.museum-stop.is-bare::before { display: none; }
+.museum-stop > .section { padding-block: clamp(28px, 4vw, 64px); }
+.museum-stop + .museum-stop, .museum-stop + .walk-gap { margin-top: 0; }
+.museum canvas { display: block; width: 100%; height: 100%; transition: opacity .6s ease; }
+/* while the 3D is still loading: a dark room, not the old plain background */
+html.museum-on body { background: #0c0b0a; }
+html.museum-loading .museum canvas { opacity: 0; }
+.fps-meter { position: fixed; left: 8px; bottom: 8px; z-index: 99999; padding: 6px 10px; border-radius: 8px; background: rgba(0, 0, 0, .78); color: #fff; font: 12px/1.4 monospace; white-space: pre; pointer-events: none; }
 .museum-veil { position: absolute; inset: 0; z-index: 1; background: #0e0d0d; opacity: 0; }
 /* the painting, lifted off the wall, on its way to the poster */
-.museum-flyer { position: absolute; inset: 0; z-index: 2; overflow: hidden; visibility: hidden; opacity: 0; }
+.museum-flyer { position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 2; overflow: hidden; visibility: hidden; opacity: 0; transform-origin: 0 0; will-change: transform, opacity; }
 .museum-flyer img { position: absolute; left: 0; top: 0; width: auto; height: auto; max-width: none; transform-origin: 0 0; will-change: transform; }
 /* the poster must already sit still when the picture lands on it: no reveal, no zoom settling */
 #analyses.with-museum .work-poster.reveal { opacity: 1; transform: none; transition: none; }
 #analyses.with-museum .work-poster img[data-parallax] { scale: 1.12; transition: none !important; }
 /* a soft vignette, as through a lens */
-.museum::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(ellipse 75% 70% at 50% 50%, transparent 55%, rgba(12, 10, 8, .38)); }
-#analyses > .wrap { position: relative; z-index: 1; }
+.museum::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .14 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"), radial-gradient(ellipse 75% 70% at 50% 50%, transparent 50%, rgba(10, 8, 6, .5)); background-blend-mode: normal; opacity: 1; mix-blend-mode: normal; }
+.museum::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(180deg, rgba(10, 8, 6, .22), transparent 30%, transparent 70%, rgba(10, 8, 6, .3)); } /* the light falls off towards the ceiling and the floor, as on a lens */
 /* the empty stretch where you walk to the next painting */
-.walk-gap { height: 160vh; }
+/* a walk: the gap, then the section, held at its resting place (--stop) while the last stretch
+   (--hold) scrolls by. Sticky, so the browser holds it with the scroll itself: it cannot shake */
+.walk { position: relative; }
+.walk-spacer { display: none; } /* (nothing is held: the section simply scrolls with the page) */
+.walk-gap { height: 120vh; } /* a screen for the last section to leave, then the walk */
+.walk-gap:has(+ .museum-stop) { height: 100vh; } /* (a plain section needs no long approach) */
 /* each analysis comes up over the view on a dark panel */
-.with-museum .work { --card: 1; margin-top: 0; padding: clamp(20px, 3vw, 44px); border-radius: 22px; isolation: isolate; }
-.with-museum .work::before { content: ""; position: absolute; inset: 0; z-index: -2; border-radius: inherit; border: 1px solid var(--gold-line); background: rgba(19, 18, 18, .93); box-shadow: 0 30px 80px rgba(0, 0, 0, .6); opacity: var(--card); }
-.with-museum .work-poster::after { opacity: var(--shade, 1); } /* the poster's shading comes down over the landed picture first */
+.with-museum .work { margin-top: 0; padding: clamp(20px, 3vw, 44px); border-radius: 22px; isolation: isolate; }
+/* the card is a real element (not a pseudo-element driven by a variable), so fading it touches
+   nothing else: changing an inherited variable on an analysis would restyle everything inside it */
+.work-card { display: none; }
+.with-museum .work-card { display: block; position: absolute; inset: 0; z-index: -2; border-radius: inherit; border: 1px solid var(--gold-line); background: rgba(19, 18, 18, .93); box-shadow: 0 30px 80px rgba(0, 0, 0, .6); }
+.museum-veil, .museum-fade { will-change: opacity; }
 .with-museum .work + .walk-gap { margin-top: 0; }
 /* the list of works stays readable over the bright gallery */
 @media (min-width: 761px) { #analyses.with-museum .toc { align-self: start; margin-top: clamp(40px, 6vw, 90px); padding: 26px 24px 22px; border-radius: 16px; background: rgba(19, 18, 18, .9); border: 1px solid var(--gold-line); } }
-@media (max-width: 760px) { .walk-gap { height: 140vh; } .with-museum .work { padding: 16px; border-radius: 16px; } }
+/* the page's first-analysis rule takes away the top padding; inside the museum every card keeps it */
+#analyses.with-museum .work.work { padding-top: clamp(20px, 3vw, 44px); }
+@media (max-width: 760px) { .walk-gap { height: 110vh; } .walk-gap:has(+ .museum-stop) { height: 90vh; } .with-museum .work, #analyses.with-museum .work.work, .museum-stop { padding: 16px; border-radius: 16px; } }
 
 @supports (animation-timeline: view()) {
   /* the gallery: the left painting hangs on the left wall, the right one on the right wall,

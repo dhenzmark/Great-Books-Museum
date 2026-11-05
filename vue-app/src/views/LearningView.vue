@@ -1,4 +1,5 @@
 <script setup>
+import { museum } from "../museum/state.js";
 import PageTitle from "../components/layout/PageTitle.vue";
 import NextPage from "../components/layout/NextPage.vue";
 import LessonGrid from "../components/learning/LessonGrid.vue";
@@ -28,10 +29,34 @@ import CraftNotes from "../components/learning/CraftNotes.vue";
     <main id="main">
       <section id="learning" class="section" aria-labelledby="page-title">
         <div class="wrap">
-          <LessonGrid />
-          <LensGuide />
-          <ComparisonTable />
-          <CraftNotes />
+          <div class="walk">
+            <div v-if="museum.on" class="walk-gap" aria-hidden="true"></div>
+            <div class="museum-stop">
+              <LessonGrid />
+            </div>
+            <div v-if="museum.on" class="walk-spacer" aria-hidden="true"></div>
+          </div>
+          <div class="walk">
+            <div v-if="museum.on" class="walk-gap" aria-hidden="true"></div>
+            <div class="museum-stop">
+              <LensGuide />
+            </div>
+            <div v-if="museum.on" class="walk-spacer" aria-hidden="true"></div>
+          </div>
+          <div class="walk">
+            <div v-if="museum.on" class="walk-gap" aria-hidden="true"></div>
+            <div class="museum-stop">
+              <ComparisonTable />
+            </div>
+            <div v-if="museum.on" class="walk-spacer" aria-hidden="true"></div>
+          </div>
+          <div class="walk">
+            <div v-if="museum.on" class="walk-gap" aria-hidden="true"></div>
+            <div class="museum-stop">
+              <CraftNotes />
+            </div>
+            <div v-if="museum.on" class="walk-spacer" aria-hidden="true"></div>
+          </div>
         </div>
       </section>
       <NextPage to="/reflection" title="Personal Reflection" />

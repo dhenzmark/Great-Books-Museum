@@ -6,7 +6,12 @@
   <title>Epic Voices | Seven Masterpieces of World Literature</title>
   <meta name="description" content="A literary portfolio by Dhenz Mark A. Alden: seven works of world literature, each paired with the paintings they inspired.">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <script>document.documentElement.classList.add("js");</script>
+  <script>
+    document.documentElement.classList.add("js");
+    /* the museum will show behind the site: say so before anything is drawn, so a reload never
+       flashes the plain background first (SiteMuseum.vue takes it back if 3D turns out unavailable) */
+    try { if (document.createElement("canvas").getContext("webgl2")) document.documentElement.classList.add("museum-on", "museum-loading"); } catch (e) {}
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Montserrat:wght@300;400;500;600&family=GFS+Didot&family=Tiro+Devanagari+Sanskrit&family=Frank+Ruhl+Libre:wght@500&family=UnifrakturMaguntia&display=swap">
